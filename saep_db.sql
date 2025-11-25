@@ -1,69 +1,56 @@
--- ENTREGA 3: SCRIPT DE CRIAÇÃO E POPULAÇÃO DO BANCO DE DADOS
+DROP DATABASE IF EXISTS gerenciaEstoque;
+CREATE DATABASE gerenciaEstoque;
+USE gerenciaEstoque;
 
-DROP DATABASE IF EXISTS saep_db;
-CREATE DATABASE saep_db;
-USE saep_db;
-
--- 2. CRIAÇÃO DA TABELA USUARIO
 CREATE TABLE Usuarios (
-    id_usuario INT PRIMARY KEY AUTO_INCREMENT,
-    nome_usuario VARCHAR(100) NOT NULL,
+    idUsuario INT PRIMARY KEY AUTO_INCREMENT,
+    nomeUsuario VARCHAR(100) NOT NULL,
     login VARCHAR(50) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL
 );
 
--- 3. CRIAÇÃO DA TABELA PRODUTOs
 CREATE TABLE Produtos (
-    id_produto INT PRIMARY KEY AUTO_INCREMENT,
+    idProduto INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
     descricao TEXT,
-    unidade_medida VARCHAR(20),
-    estoque_atual INT DEFAULT 0,
-    estoque_minimo INT NOT NULL,
-    data_validade DATE,
-    caracteristica_variacao VARCHAR(100) 
+    unidadeMedida VARCHAR(20),
+    estoqueAtual INT DEFAULT 0,
+    estoqueMinimo INT NOT NULL,
+    dataValidade DATE,
+    caracteristicaVariacao VARCHAR(100)
 );
 
--- 4. CRIAÇÃO DA TABELA MOVIMENTACAO (RF14 - Histórico/Rastreabilidade)
 CREATE TABLE Movimentacao (
-    id_movimentacao INT PRIMARY KEY AUTO_INCREMENT,
-    tipo_movimentacao ENUM('Entrada', 'Saida') NOT NULL, 
+    idMovimentacao INT PRIMARY KEY AUTO_INCREMENT,
+    tipoMovimentacao ENUM('Entrada', 'Saida') NOT NULL,
     quantidade INT NOT NULL,
-    data_movimentacao DATE NOT NULL,
-    
-    -- Chaves Estrangeiras para Rastreabilidade
-    id_produto INT,
-    id_usuario INT, -- Responsável pela movimentação
-    
-    FOREIGN KEY (id_produto) REFERENCES Produtos(id_produto),
-    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+    dataMovimentacao DATE NOT NULL,
+    idProduto INT,
+    idUsuario INT,
+    FOREIGN KEY (idProduto) REFERENCES Produtos(idProduto),
+    FOREIGN KEY (idUsuario) REFERENCES Usuarios(idUsuario)
 );
 
+-- Inserts: Usuários (5) com e-mails @gmail.com
+INSERT INTO Usuarios (nomeUsuario, login, senha) VALUES
+('Joana Almoxarifado', 'joana.almoxarifado@gmail.com', 'senha_hash1'),
+('Rafael Gerente', 'rafael.gerente@gmail.com', 'senha_hash2'),
+('Carlos Estagiario', 'carlos.estagiario@gmail.com', 'senha_hash3'),
+('Mariana Supervisora', 'mariana.supervisora@gmail.com', 'senha_hash4'),
+('Bruno Operacional', 'bruno.operacional@gmail.com', 'senha_hash5');
 
--- 5. POPULAÇÃO INICIAL (Mínimo de 3 registros por tabela)
+-- Inserts: Produtos (5)
+INSERT INTO Produtos (nome, descricao, unidadeMedida, estoqueAtual, estoqueMinimo, dataValidade, caracteristicaVariacao) VALUES
+('Cimento CP II-F 50kg', 'Cimento para construção estrutural', 'Saco', 12, 20, '2026-08-30', 'Tipo: Estrutural'),
+('Tinta Acrílica Premium 18L', 'Acabamento fosco, uso interno', 'Lata', 8, 5, NULL, 'Cor: Branco Neve'),
+('Barra de Aço CA-50 8mm', 'Barra metálica para vigas', 'Barra', 100, 50, NULL, 'Diâmetro: 8mm'),
+('Areia Média Ensacada 20kg', 'Areia tratada e peneirada', 'Saco', 30, 15, NULL, 'Granulação: Média'),
+('Brita 1 Ensacada 25kg', 'Pedra britada para concreto', 'Saco', 18, 10, NULL, 'Tipo: N° 1');
 
--- 5.1. Usuários
-INSERT INTO Usuarios (nome_usuario, login, senha) VALUES
-('Joana Almoxarifado', 'joana.a', 'senha_hashed_1'),
-('Rafael Gerente', 'rafael.g', 'senha_hashed_2'),
-('Carlos Estagiario', 'carlos.e', 'senha_hashed_3');
-
--- 5.2. Produtos (com estoque mínimo e variações)
--- Obs: O estoque_atual inicia baixo para facilitar o teste de entrada/saída.
-INSERT INTO Produtos (nome, descricao, unidade_medida, estoque_atual, estoque_minimo, data_validade, caracteristica_variacao) VALUES
-('Cimento CP II-F 50kg', 'Cimento Portland composto, resistente a sulfatos', 'Saco', 5, 20, '2026-08-30', 'Tipo: Estrutural'),
-('Tinta Acrílica Premium', 'Lata 18L, acabamento acetinado', 'Lata', 15, 10, NULL, 'Cor: Branco Gelo'),
-('Barra de Aço CA-50 3/8"', 'Barra de Aço para estruturas', 'Barra', 50, 50, NULL, 'Diâmetro: 9.5mm');
-
--- 5.3. Movimentações (Ligando Usuário e Produto)
--- Movimentação 1: Entrada de Cimento por Joana
-INSERT INTO Movimentacao (tipo_movimentacao, quantidade, data_movimentacao, id_produto, id_usuario) VALUES
-('Entrada', 100, '2025-11-20', 1, 1); -- Produto 1 (Cimento), Usuário 1 (Joana)
-
--- Movimentação 2: Entrada de Tinta por Rafael
-INSERT INTO Movimentacao (tipo_movimentacao, quantidade, data_movimentacao, id_produto, id_usuario) VALUES
-('Entrada', 15, '2025-11-21', 2, 2); -- Produto 2 (Tinta), Usuário 2 (Rafael)
-
--- Movimentação 3: Saída de Aço por Carlos
-INSERT INTO Movimentacao (tipo_movimentacao, quantidade, data_movimentacao, id_produto, id_usuario) VALUES
-('Saida', 10, '2025-11-24', 3, 3); -- Produto 3 (Aço), Usuário 3 (Carlos)
+-- Inserts: Movimentações (5)
+INSERT INTO Movimentacao (tipoMovimentacao, quantidade, dataMovimentacao, idProduto, idUsuario) VALUES
+('Entrada', 50,  '2025-11-20', 1, 1),
+('Saida',   10,  '2025-11-21', 2, 2),
+('Entrada', 40,  '2025-11-22', 3, 4),
+('Saida',   15,  '2025-11-23', 4, 5),
+('Entrada', 20,  '2025-11-24', 5, 3);
