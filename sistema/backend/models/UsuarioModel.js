@@ -10,11 +10,11 @@ class UsuarioModel {
             // Buscar usuários com paginação (usando prepared statements para segurança)
             const connection = await getConnection();
             try {
-                const sql = 'SELECT * FROM usuarios ORDER BY id DESC LIMIT ? OFFSET ?';
+                const sql = 'SELECT * FROM Usuarios ORDER BY idUsuario DESC LIMIT ? OFFSET ?';
                 const [usuarios] = await connection.execute(sql, [limite, offset]);
                 
                 // Contar total de registros
-                const [totalResult] = await connection.execute('SELECT COUNT(*) as total FROM usuarios');
+                const [totalResult] = await connection.execute('SELECT COUNT(*) as total FROM Usuarios');
                 const total = totalResult[0].total;
                 
                 return {
@@ -36,7 +36,7 @@ class UsuarioModel {
     // Buscar usuário por ID
     static async buscarPorId(id) {
         try {
-            const rows = await read('usuarios', `id = ${id}`);
+            const rows = await read('Usuarios', `idUsuario = ${id}`);
             return rows[0] || null;
         } catch (error) {
             console.error('Erro ao buscar usuário por ID:', error);
@@ -45,12 +45,12 @@ class UsuarioModel {
     }
 
     // Buscar usuário por email
-    static async buscarPorEmail(email) {
+    static async buscarPorLogin(login) {
         try {
-            const rows = await read('usuarios', `email = '${email}'`);
+            const rows = await read('Usuarios', `login = '${login}'`);
             return rows[0] || null;
         } catch (error) {
-            console.error('Erro ao buscar usuário por email:', error);
+            console.error('Erro ao buscar usuário por login:', error);
             throw error;
         }
     }
@@ -65,7 +65,11 @@ class UsuarioModel {
                 senha: senhaHash
             };
             
-            return await create('usuarios', dadosComHash);
+            return await create('Usuarios', {
+                nomeUsuario: dadosComHash.nome,
+                login: dadosComHash.login,
+                senha: dadosComHash.senha
+            });
         } catch (error) {
             console.error('Erro ao criar usuário:', error);
             throw error;
@@ -80,7 +84,11 @@ class UsuarioModel {
                 dadosUsuario.senha = await hashPassword(dadosUsuario.senha);
             }
             
-            return await update('usuarios', dadosUsuario, `id = ${id}`);
+            const dados = {};
+            if (dadosUsuario.nome !== undefined) dados.nomeUsuario = dadosUsuario.nome;
+            if (dadosUsuario.login !== undefined) dados.login = dadosUsuario.login;
+            if (dadosUsuario.senha !== undefined) dados.senha = dadosUsuario.senha;
+            return await update('Usuarios', dados, `idUsuario = ${id}`);
         } catch (error) {
             console.error('Erro ao atualizar usuário:', error);
             throw error;
@@ -90,7 +98,7 @@ class UsuarioModel {
     // Excluir usuário
     static async excluir(id) {
         try {
-            return await deleteRecord('usuarios', `id = ${id}`);
+            return await deleteRecord('Usuarios', `idUsuario = ${id}`);
         } catch (error) {
             console.error('Erro ao excluir usuário:', error);
             throw error;
@@ -100,7 +108,7 @@ class UsuarioModel {
     // Verificar credenciais de login
     static async verificarCredenciais(email, senha) {
         try {
-            const usuario = await this.buscarPorEmail(email);
+            const usuario = await this.buscarPorLogin(email);
             
             if (!usuario) {
                 return null;
@@ -113,8 +121,12 @@ class UsuarioModel {
             }
 
             // Retornar usuário sem a senha
-            const { senha: _, ...usuarioSemSenha } = usuario;
-            return usuarioSemSenha;
+            const { senha: _, ...rest } = usuario;
+            return {
+                id: rest.idUsuario,
+                nome: rest.nomeUsuario,
+                login: rest.login
+            };
         } catch (error) {
             console.error('Erro ao verificar credenciais:', error);
             throw error;

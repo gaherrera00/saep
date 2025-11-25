@@ -1,5 +1,6 @@
 import express from 'express';
 import ProdutoController from '../controllers/ProdutoController.js';
+import MovimentacaoController from '../controllers/MovimentacaoController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 import { uploadImagens, handleUploadError } from '../middlewares/uploadMiddleware.js';
 
@@ -12,6 +13,8 @@ router.get('/:id', ProdutoController.buscarPorId);
 // Rotas protegidas (precisam de autenticação)
 router.post('/', authMiddleware, uploadImagens.single('imagem'), handleUploadError, ProdutoController.criar);
 router.post('/upload', authMiddleware, uploadImagens.single('imagem'), handleUploadError, ProdutoController.uploadImagem);
+// Movimentações de estoque
+router.post('/:id/movimentacoes', authMiddleware, MovimentacaoController.criarMovimentacao);
 router.put('/:id', authMiddleware, uploadImagens.single('imagem'), handleUploadError, ProdutoController.atualizar);
 router.delete('/:id', authMiddleware, ProdutoController.excluir);
 

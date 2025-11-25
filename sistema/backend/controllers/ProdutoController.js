@@ -51,7 +51,8 @@ class ProdutoController {
                 });
             }
             
-            const resultado = await ProdutoModel.listarTodos(pagina, limite);
+            const search = req.query.search || null;
+            const resultado = await ProdutoModel.listarTodos(pagina, limite, search);
             
             res.status(200).json({
                 sucesso: true,
@@ -114,70 +115,58 @@ class ProdutoController {
     // POST /produtos - Criar novo produto
     static async criar(req, res) {
         try {
-            const { nome, descricao, preco, categoria } = req.body;
-            
-            // Validações manuais - coletar todos os erros
+            const { nome, descricao, unidadeMedida, estoqueMinimo, dataValidade, estoqueAtual } = req.body;
+
             const erros = [];
-            
-            // Validar nome
+
             if (!nome || nome.trim() === '') {
-                erros.push({
-                    campo: 'nome',
-                    mensagem: 'Nome é obrigatório'
-                });
+                erros.push({ campo: 'nome', mensagem: 'Nome é obrigatório' });
             } else {
-                if (nome.trim().length < 3) {
-                    erros.push({
-                        campo: 'nome',
-                        mensagem: 'O nome deve ter pelo menos 3 caracteres'
-                    });
-                }
-                
-                if (nome.trim().length > 255) {
-                    erros.push({
-                        campo: 'nome',
-                        mensagem: 'O nome deve ter no máximo 255 caracteres'
-                    });
+                if (nome.trim().length < 3) erros.push({ campo: 'nome', mensagem: 'O nome deve ter pelo menos 3 caracteres' });
+                if (nome.trim().length > 255) erros.push({ campo: 'nome', mensagem: 'O nome deve ter no máximo 255 caracteres' });
+            }
+
+            const minimo = parseInt(estoqueMinimo);
+            if (isNaN(minimo) || minimo < 0) {
+                erros.push({ campo: 'estoqueMinimo', mensagem: 'Estoque mínimo deve ser número inteiro maior ou igual a zero' });
+            }
+
+            let validade = null;
+            if (dataValidade !== undefined && dataValidade !== null && dataValidade !== '') {
+                const v = String(dataValidade).trim();
+                const re = /^\d{4}-\d{2}-\d{2}$/;
+                if (!re.test(v)) {
+                    erros.push({ campo: 'dataValidade', mensagem: 'Data de validade deve estar no formato YYYY-MM-DD' });
+                } else {
+                    validade = v;
                 }
             }
 
-            // Validar preço
-            if (!preco || isNaN(preco) || preco <= 0) {
-                erros.push({
-                    campo: 'preco',
-                    mensagem: 'Preço deve ser um número positivo'
-                });
+            const atual = parseInt(estoqueAtual ?? 0);
+            if (isNaN(atual) || atual < 0) {
+                erros.push({ campo: 'estoqueAtual', mensagem: 'Estoque inicial deve ser número inteiro maior ou igual a zero' });
             }
 
-            // Se houver erros, retornar todos de uma vez
             if (erros.length > 0) {
-                return res.status(400).json({
-                    sucesso: false,
-                    erro: 'Dados inválidos',
-                    detalhes: erros
-                });
+                return res.status(400).json({ sucesso: false, erro: 'Dados inválidos', detalhes: erros });
             }
 
-            // Preparar dados do produto
             const dadosProduto = {
                 nome: nome.trim(),
                 descricao: descricao ? descricao.trim() : null,
-                preco: parseFloat(preco),
-                categoria: categoria ? categoria.trim() : 'Geral'
+                unidadeMedida: unidadeMedida ? unidadeMedida.trim() : null,
+                estoqueAtual: atual,
+                estoqueMinimo: minimo,
+                dataValidade: validade
             };
 
-            // Adicionar imagem se foi enviada
-            if (req.file) {
-                dadosProduto.imagem = req.file.filename;
-            }
-
             const produtoId = await ProdutoModel.criar(dadosProduto);
-            
+
             res.status(201).json({
                 sucesso: true,
                 mensagem: 'Produto criado com sucesso',
                 dados: {
-                    id: produtoId,
+                    idProduto: produtoId,
                     ...dadosProduto
                 }
             });
@@ -394,4 +383,3 @@ class ProdutoController {
 }
 
 export default ProdutoController;
-

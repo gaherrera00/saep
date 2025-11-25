@@ -27,7 +27,6 @@ class AuthController {
                 });
             }
 
-            // Validação básica de formato de email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 return res.status(400).json({
@@ -37,7 +36,6 @@ class AuthController {
                 });
             }
 
-            // Verificar credenciais
             const usuario = await UsuarioModel.verificarCredenciais(email.trim(), senha);
             
             if (!usuario) {
@@ -51,9 +49,9 @@ class AuthController {
             // Gerar token JWT
             const token = jwt.sign(
                 { 
-                    id: usuario.id, 
-                    email: usuario.email,
-                    tipo: usuario.tipo 
+                    id: usuario.id,
+                    email: usuario.login,
+                    tipo: 'comum'
                 },
                 JWT_CONFIG.secret,
                 { expiresIn: JWT_CONFIG.expiresIn }
@@ -67,8 +65,8 @@ class AuthController {
                     usuario: {
                         id: usuario.id,
                         nome: usuario.nome,
-                        email: usuario.email,
-                        tipo: usuario.tipo
+                        login: usuario.login,
+                        tipo: 'comum'
                     }
                 }
             });
@@ -200,12 +198,14 @@ class AuthController {
                 });
             }
 
-            // Remover senha dos dados retornados
-            const { senha, ...usuarioSemSenha } = usuario;
-
+            const { senha, ...rest } = usuario;
             res.status(200).json({
                 sucesso: true,
-                dados: usuarioSemSenha
+                dados: {
+                    id: rest.idUsuario,
+                    nome: rest.nomeUsuario,
+                    login: rest.login
+                }
             });
         } catch (error) {
             console.error('Erro ao obter perfil:', error);
