@@ -1,0 +1,51 @@
+# Dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+
+# Arquivos de upload
+uploads/*
+!uploads/.gitkeep
+
+# Arquivos temporários
+.tmp/
+temp/
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos de build
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Arquivos de backup
+*.bak
+*.backup
+
+# Utilitários de desenvolvimento (NÃO devem ir para produção)
+dev-utils/
+*.secret
+*.key
+

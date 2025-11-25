@@ -1,0 +1,37 @@
+{
+  "name": "api-produtos",
+  "version": "1.0.0",
+  "description": "API RESTful para gestão de produtos com Node.js, Express e MySQL",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --watch app.js",
+    "dev": "node --watch app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "api",
+    "rest",
+    "nodejs",
+    "express",
+    "mysql",
+    "jwt",
+    "upload",
+    "produtos"
+  ],
+  "author": "Professor - Curso Técnico em Desenvolvimento de Sistemas",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.2",
+    "mysql2": "^3.6.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
