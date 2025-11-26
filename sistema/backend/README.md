@@ -34,19 +34,20 @@ Copie o arquivo `env.example` para `.env` e configure suas credenciais:
 cp env.example .env
 ```
 
-Edite o arquivo `.env` com suas configurações do MySQL:
+Edite o arquivo `.env` com suas configurações do MySQL (ou use `env.example` como base):
 ```env
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=sua_senha_aqui
 DB_NAME=produtos_api
-PORT=3000
+PORT=3001
 NODE_ENV=development
-JWT_SECRET=320c2a4afff5ab80f94f1264f3e643a15d6d391affa6cde663a458c515f76e2d6e171700fa0c8916bdc1a0ee376627ac8b239faed6b5b7e533b1565ba789d60c
+JWT_SECRET=change_me_for_production
 JWT_EXPIRES_IN=1h
 UPLOAD_PATH=./uploads
 MAX_FILE_SIZE=5242880
 ALLOWED_FILE_TYPES=image/jpeg,image/png,image/gif
+PAGINACAO_LIMITE_MAXIMO=100
 ```
 
 ### 4. Executar Migrations
@@ -66,7 +67,7 @@ Execute os arquivos SQL na ordem correta no MySQL:
 npm start
 ```
 
-O servidor estará rodando em `http://localhost:3000`
+O servidor estará rodando em `http://localhost:3001`
 
 ## Credenciais de Teste
 
@@ -83,7 +84,7 @@ Após executar as migrations, você terá os seguintes usuários:
 /* Este teste realiza o login do usuário administrador para obter o token JWT necessário para acessar as rotas protegidas da API */
 // Login do usuário admin para obter token JWT
 ```bash
-curl -X POST http://localhost:3000/api/auth/login \
+curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "admin@produtos.com",
@@ -114,12 +115,12 @@ Resultado esperado:
 /* Este teste lista todos os produtos cadastrados no sistema, não requer autenticação */
 // Listar todos os produtos
 ```bash
-curl -X GET http://localhost:3000/api/produtos
+curl -X GET http://localhost:3001/api/produtos
 ```
 
 /* Listar produtos com paginacao (pagina 1, 5 itens por pagina) */
 ```bash
-curl -X GET "http://localhost:3000/api/produtos?pagina=1&limite=5"
+curl -X GET "http://localhost:3001/api/produtos?pagina=1&limite=5"
 ```
 /*
 Resultado esperado (com paginacao):
@@ -159,7 +160,7 @@ Resultado esperado (com paginacao):
 /* Este teste busca um produto específico pelo seu ID, não requer autenticação */
 // Buscar produto por ID
 ```bash
-curl -X GET http://localhost:3000/api/produtos/1
+curl -X GET http://localhost:3001/api/produtos/1
 ```
 /*
 Resultado esperado:
@@ -183,7 +184,7 @@ Resultado esperado:
 /* Este teste cria um novo produto no sistema, requer autenticação com token JWT */
 // Criar novo produto (requer token JWT)
 ```bash
-curl -X POST http://localhost:3000/api/produtos \
+curl -X POST http://localhost:3001/api/produtos \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SEU_TOKEN_AQUI" \
   -d '{
@@ -216,7 +217,7 @@ Resultado esperado:
 /* Este teste atualiza um produto existente, requer autenticação com token JWT */
 // Atualizar produto existente (requer token JWT)
 ```bash
-curl -X PUT http://localhost:3000/api/produtos/1 \
+curl -X PUT http://localhost:3001/api/produtos/1 \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SEU_TOKEN_AQUI" \
   -d '{
@@ -242,7 +243,7 @@ Resultado esperado:
 /* Este teste exclui um produto do sistema, requer autenticação com token JWT */
 // Excluir produto (requer token JWT)
 ```bash
-curl -X DELETE http://localhost:3000/api/produtos/5 \
+curl -X DELETE http://localhost:3001/api/produtos/5 \
   -H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 /*
@@ -263,7 +264,7 @@ Resultado esperado:
 /* Este teste faz upload de uma imagem para um produto, requer autenticação com token JWT */
 // Upload de imagem para produto (requer token JWT)
 ```bash
-curl -X POST http://localhost:3000/api/produtos/upload \
+curl -X POST http://localhost:3001/api/produtos/upload \
   -H "Authorization: Bearer SEU_TOKEN_AQUI" \
   -F "imagem=@caminho/para/sua/imagem.jpg" \
   -F "produto_id=1"
@@ -287,7 +288,7 @@ Resultado esperado:
 /* Este teste lista todos os usuários cadastrados, requer autenticação com token JWT de admin */
 // Listar usuários (requer token JWT de admin)
 ```bash
-curl -X GET http://localhost:3000/api/usuarios \
+curl -X GET http://localhost:3001/api/usuarios \
   -H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 /*
@@ -319,7 +320,7 @@ Resultado esperado (com paginacao):
 
 /* Listar usuarios com paginacao (pagina 1, 2 itens por pagina) */
 ```bash
-curl -X GET "http://localhost:3000/api/usuarios?pagina=1&limite=2" \
+curl -X GET "http://localhost:3001/api/usuarios?pagina=1&limite=2" \
   -H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 
@@ -330,7 +331,7 @@ curl -X GET "http://localhost:3000/api/usuarios?pagina=1&limite=2" \
 /* Este teste cria um novo usuário no sistema, requer autenticação com token JWT de admin */
 // Criar novo usuário (requer token JWT de admin)
 ```bash
-curl -X POST http://localhost:3000/api/usuarios \
+curl -X POST http://localhost:3001/api/usuarios \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SEU_TOKEN_AQUI" \
   -d '{
@@ -361,7 +362,7 @@ Resultado esperado:
 /* Este teste demonstra como a API valida dados inválidos e retorna erros apropriados */
 // Teste de validação com dados inválidos
 ```bash
-curl -X POST http://localhost:3000/api/produtos \
+curl -X POST http://localhost:3001/api/produtos \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SEU_TOKEN_AQUI" \
   -d '{
@@ -394,7 +395,7 @@ Resultado esperado:
 /* Este teste demonstra como a API responde quando um token JWT inválido é fornecido */
 // Teste de acesso negado com token inválido
 ```bash
-curl -X GET http://localhost:3000/api/usuarios \
+curl -X GET http://localhost:3001/api/usuarios \
   -H "Authorization: Bearer token_invalido"
 ```
 /*
@@ -413,7 +414,7 @@ Resultado esperado:
 /* Este teste demonstra como fazer uma requisição OPTIONS para verificar permissões CORS antes de fazer requisições reais */
 // Verificar permissoes CORS antes de criar produto
 ```bash
-curl -X OPTIONS http://localhost:3000/api/produtos \
+curl -X OPTIONS http://localhost:3001/api/produtos \
   -H "Origin: http://localhost:3000" \
   -H "Access-Control-Request-Method: POST" \
   -H "Access-Control-Request-Headers: Content-Type, Authorization"

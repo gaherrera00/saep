@@ -17,7 +17,7 @@ Interface web do Sistema de Administração de Estoque e Produtos, construída c
    ```bash
    npm install
    ```
-2. Definir a URL da API em `src/lib/utils.js` (variável `API_BASE_URL`) se precisar apontar para outro host.
+2. Definir a URL da API em `src/lib/utils.js` (variável `API_BASE_URL`, padrão `http://localhost:3001`) se precisar apontar para outro host/porta.
 3. Iniciar o servidor de desenvolvimento:
    ```bash
    npm run dev

@@ -31,12 +31,12 @@ Aplicação completa para controle de estoque e catálogo de produtos, com API N
    - Importe `saep_db.sql` ou rode as migrations em `sistema/backend/migrations`.
 
 3. **Subir serviços**
-   - Backend: `npm run start --prefix sistema/backend` (porta padrão: 3000)
+   - Backend: `npm run start --prefix sistema/backend` (porta padrão: 3001)
    - Frontend: `npm run dev --prefix sistema/frontend` (porta padrão: 3000 — ajuste se necessário)
 
 4. **Acessar aplicação**
    - Frontend: `http://localhost:3000`
-   - API base: `http://localhost:3000/api`
+   - API base: `http://localhost:3001/api`
 
 ## Credenciais de teste
 Após importar o banco ou executar as migrations, use:
