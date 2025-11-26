@@ -2,19 +2,28 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from "@/lib/utils";
 
 export default function Header() {
   const [usuario, setUsuario] = useState(null);
   const router = useRouter();
 
+  function getCookie(name) {
+    if (typeof document === "undefined") return null;
+    const value = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${name}=`))?.split("=")[1];
+    return value || null;
+  }
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || getCookie('token');
     if (!token) return;
 
     // buscar perfil
     (async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/auth/perfil', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/perfil`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) {
@@ -34,6 +43,7 @@ export default function Header() {
   function handleLogout() {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario_nome');
+    document.cookie = "token=; path=/; max-age=0; SameSite=Lax";
     setUsuario(null);
     router.push('/login');
   }
