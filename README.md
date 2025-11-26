@@ -10,6 +10,7 @@ Aplicação completa para controle de estoque e catálogo de produtos, com API N
 - **Configuração rápida**: scripts simples para instalar dependências e subir ambos os serviços.
 
 ## Estrutura do repositório
+- **Branch principal**: `main` concentra todas as melhorias alinhadas entre backend e frontend.
 - `sistema/backend`: API REST com Express, MySQL, autenticação JWT e upload de imagens.
 - `sistema/frontend`: Frontend em Next.js (App Router), Tailwind CSS e componentes otimizados para desktop/mobile.
 - `saep_db.sql`: dump SQL do banco para popular ambiente local.
