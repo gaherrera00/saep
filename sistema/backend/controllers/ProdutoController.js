@@ -184,7 +184,18 @@ class ProdutoController {
     static async atualizar(req, res) {
         try {
             const { id } = req.params;
-            const { nome, descricao, preco, categoria } = req.body;
+            const {
+                nome,
+                descricao,
+                unidadeMedida,
+                estoqueMinimo,
+                estoqueAtual,
+                dataValidade,
+                estoque_minimo,
+                estoque_atual,
+                unidade_medida,
+                data_validade
+            } = req.body;
             
             // Validação do ID
             if (!id || isNaN(id)) {
@@ -205,9 +216,9 @@ class ProdutoController {
                 });
             }
 
-            // Preparar dados para atualização
+            // Preparar dados para atualização, aceitando camelCase e snake_case
             const dadosAtualizacao = {};
-            
+
             if (nome !== undefined) {
                 if (nome.trim() === '') {
                     return res.status(400).json({
@@ -219,23 +230,57 @@ class ProdutoController {
                 dadosAtualizacao.nome = nome.trim();
             }
 
-            if (preco !== undefined) {
-                if (isNaN(preco) || preco <= 0) {
-                    return res.status(400).json({
-                        sucesso: false,
-                        erro: 'Preço inválido',
-                        mensagem: 'O preço deve ser um número maior que zero'
-                    });
-                }
-                dadosAtualizacao.preco = parseFloat(preco);
-            }
-
             if (descricao !== undefined) {
                 dadosAtualizacao.descricao = descricao ? descricao.trim() : null;
             }
 
-            if (categoria !== undefined) {
-                dadosAtualizacao.categoria = categoria ? categoria.trim() : 'Geral';
+            const unidade = unidadeMedida ?? unidade_medida;
+            if (unidade !== undefined) {
+                dadosAtualizacao.unidadeMedida = unidade ? String(unidade).trim() : null;
+            }
+
+            const estoqueMinimoValor = estoqueMinimo ?? estoque_minimo;
+            if (estoqueMinimoValor !== undefined) {
+                const minimo = parseInt(estoqueMinimoValor);
+                if (isNaN(minimo) || minimo < 0) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Estoque mínimo inválido',
+                        mensagem: 'O estoque mínimo deve ser um número inteiro maior ou igual a zero'
+                    });
+                }
+                dadosAtualizacao.estoqueMinimo = minimo;
+            }
+
+            const estoqueAtualValor = estoqueAtual ?? estoque_atual;
+            if (estoqueAtualValor !== undefined) {
+                const atual = parseInt(estoqueAtualValor);
+                if (isNaN(atual) || atual < 0) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: 'Estoque atual inválido',
+                        mensagem: 'O estoque atual deve ser um número inteiro maior ou igual a zero'
+                    });
+                }
+                dadosAtualizacao.estoqueAtual = atual;
+            }
+
+            const validadeInput = dataValidade ?? data_validade;
+            if (validadeInput !== undefined) {
+                const validadeStr = String(validadeInput).trim();
+                if (validadeStr === '') {
+                    dadosAtualizacao.dataValidade = null;
+                } else {
+                    const re = /^\d{4}-\d{2}-\d{2}$/;
+                    if (!re.test(validadeStr)) {
+                        return res.status(400).json({
+                            sucesso: false,
+                            erro: 'Data de validade inválida',
+                            mensagem: 'Use o formato YYYY-MM-DD'
+                        });
+                    }
+                    dadosAtualizacao.dataValidade = validadeStr;
+                }
             }
 
             // Adicionar nova imagem se foi enviada
@@ -257,12 +302,15 @@ class ProdutoController {
             }
 
             const resultado = await ProdutoModel.atualizar(id, dadosAtualizacao);
-            
+            const linhasAfetadas = typeof resultado === 'number'
+                ? resultado
+                : (resultado?.affectedRows || 0);
+
             res.status(200).json({
                 sucesso: true,
                 mensagem: 'Produto atualizado com sucesso',
                 dados: {
-                    linhasAfetadas: resultado.affectedRows || 1
+                    linhasAfetadas
                 }
             });
         } catch (error) {
