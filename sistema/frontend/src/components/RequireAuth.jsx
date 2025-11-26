@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from "@/lib/utils";
 
 export default function RequireAuth({ children }){
   const [ready, setReady] = useState(false);
@@ -14,7 +15,7 @@ export default function RequireAuth({ children }){
     }
     (async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/auth/perfil', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/perfil`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) {
