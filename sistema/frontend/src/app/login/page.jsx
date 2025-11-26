@@ -33,6 +33,11 @@ export default function LoginPage() {
                 return;
             }
 
+            if (!data?.dados?.token) {
+                setErro("Resposta inválida do servidor. Tente novamente.");
+                return;
+            }
+
             // salva o token em cookie e localStorage para o middleware e para os fetches client-side
             document.cookie = `token=${data.dados.token}; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
             localStorage.setItem("token", data.dados.token);
