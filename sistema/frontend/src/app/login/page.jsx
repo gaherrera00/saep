@@ -1,10 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { API_BASE_URL } from "@/lib/utils";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
@@ -27,18 +28,26 @@ export default function LoginPage() {
 
             const data = await res.json();
 
-            if (!data.sucesso) {
+            if (!res.ok || !data.sucesso) {
                 setErro(data.mensagem || data.erro || "Erro no login");
                 return;
             }
 
+            if (!data?.dados?.token) {
+                setErro("Resposta inválida do servidor. Tente novamente.");
+                return;
+            }
+
+            // salva o token em cookie e localStorage para o middleware e para os fetches client-side
+            document.cookie = `token=${data.dados.token}; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
             localStorage.setItem("token", data.dados.token);
 
             if (data.dados.usuario) {
                 localStorage.setItem("usuario_nome", data.dados.usuario.nome);
             }
-
-            router.push("/estoque");
+            const redirect = searchParams.get("redirect");
+            const destino = redirect && redirect.startsWith("/") ? redirect : "/";
+            router.push(destino);
         } catch (error) {
             console.error(error);
             setErro("Não foi possível conectar. Verifique sua conexão e tente novamente.");

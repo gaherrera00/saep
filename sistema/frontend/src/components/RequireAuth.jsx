@@ -7,8 +7,16 @@ export default function RequireAuth({ children }){
   const [ready, setReady] = useState(false);
   const router = useRouter();
 
+  function getCookie(name) {
+    if (typeof document === "undefined") return null;
+    const value = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${name}=`))?.split("=")[1];
+    return value || null;
+  }
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || getCookie('token');
     if (!token) {
       router.replace('/login');
       return;
