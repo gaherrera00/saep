@@ -28,7 +28,7 @@ export default function LoginPage() {
 
             const data = await res.json();
 
-            if (!data.sucesso) {
+            if (!res.ok || !data.sucesso) {
                 setErro(data.mensagem || data.erro || "Erro no login");
                 return;
             }
